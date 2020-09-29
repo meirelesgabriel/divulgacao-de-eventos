@@ -35,7 +35,7 @@ class UsuariosController {
         if (verificaUsuarioExiste) {
             throw new Error('Endereço de email já cadastrado');
         }
-
+        // (senha, saldo)
         const hashedPassword = await hash(password, 8);
 
         // caso verificaUsuario seja falso, ou seja, ainda não tenha sido cadastrado o e-mail que estamos verificando

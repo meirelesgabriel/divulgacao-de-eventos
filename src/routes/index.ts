@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 // importar o arquivo de rotas dos usuarios
 import usuariosRouter from './usuarios.routes';
+import agendamentosRouter from './agendamentos.routes';
 
 const routes = Router();
 
@@ -12,5 +13,7 @@ routes.use('/usuarios', usuariosRouter);
 /* routes.get('/', (request, response) =>
     response.json({ message: 'Hello World.' }),
 ); */
+
+routes.use('/agendamentos', agendamentosRouter);
 
 export default routes;

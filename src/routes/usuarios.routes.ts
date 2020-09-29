@@ -30,7 +30,7 @@ usuariosRouter.post('/', async (request, response) => {
             email,
             password,
         });
-
+        // não tá deletando a senha
         delete user.password;
 
         return response.json(user);
@@ -49,6 +49,7 @@ usuariosRouter.get('/', async (request, response) => {
     const usuariosRepositorio = getRepository(Usuarios);
     // declarar um objeto para receber a busca feita com o método .find();
     const user = await usuariosRepositorio.find();
+    delete user[0].password;
     return response.json(user);
 });
 

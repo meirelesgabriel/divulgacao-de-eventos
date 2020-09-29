@@ -1,10 +1,15 @@
+
 import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
+
+import Usuarios from './Usuarios';
 
 // sobre a classe vem sempre o @Entity('') com o nome da tabela
 @Entity('agendamentos')
@@ -17,6 +22,10 @@ class Agendamentos {
     // como nome foi definido como varchar no nosso banco, podemos deixar em branco aqui
     @Column()
     prestador_servico_id: string;
+
+    @ManyToOne(() => Usuarios)
+    @JoinColumn({ name: 'prestador_servico_id' })
+    prestador_servico: Usuarios;
 
     @Column('timestamp without time zone')
     data: Date;
