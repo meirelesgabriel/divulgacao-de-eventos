@@ -4,6 +4,7 @@
 
 import { getRepository } from 'typeorm';
 import { hash } from 'bcryptjs';
+import ensureAuthenticated from '../../middlewares/ensureAuthenticated';
 
 import Usuarios from '../models/Usuarios';
 

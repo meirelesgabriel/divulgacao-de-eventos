@@ -2,12 +2,19 @@ import { Router } from 'express';
 // já que vamos recuperar os registros, teremos de usar o método find,
 // que pertence ao getRepository do typeorm
 import { getRepository } from 'typeorm';
+import multer from 'multer';
 
 import UsuariosController from '../app/controllers/UsuariosController';
 // já que vamos acessar a tabela, que é representada pelo model, temos de importar o model
 import Usuarios from '../app/models/Usuarios';
+import ensureAuthenticated from '../middlewares/ensureAuthenticated';
+import uploadConfig from '../config/upload';
+import AvatarUsuariosController from '../app/controllers/AvatarUsuariosController';
 
 const usuariosRouter = Router();
+const upload = multer(uploadConfig);
+
+// usuariosRouter.use(ensureAuthenticated);
 
 // vamos criar a primeira rota com o método post, que vai ter como objetivo gravar um usuário
 // nesse caso colocamos apenas a '/', porque o '/usuarios' já está na rota do index.ts
@@ -44,17 +51,18 @@ usuariosRouter.post('/', async (request, response) => {
 });
 
 // listar todos os usuários
-usuariosRouter.get('/', async (request, response) => {
+usuariosRouter.get('/', ensureAuthenticated, async (request, response) => {
     // vamos atribuir o getRepository passando o model de Usuarios ao usuariosRepositorio
     const usuariosRepositorio = getRepository(Usuarios);
     // declarar um objeto para receber a busca feita com o método .find();
     const user = await usuariosRepositorio.find();
+    console.log(request.user);
     delete user[0].password;
     return response.json(user);
 });
 
 // listar um único usuário
-usuariosRouter.get('/:id', async (request, response) => {
+usuariosRouter.get('/:id', ensureAuthenticated, async (request, response) => {
     const usuariosRepositorio = getRepository(Usuarios);
     const { id } = request.params;
     const user = await usuariosRepositorio.findOne(id);
@@ -62,11 +70,34 @@ usuariosRouter.get('/:id', async (request, response) => {
 });
 
 // excluir um usuário
-usuariosRouter.delete('/:id', async (request, response) => {
-    const usuariosRepositorio = getRepository(Usuarios);
-    const { id } = request.params;
-    await usuariosRepositorio.delete(id);
-    return response.send();
-});
+usuariosRouter.delete(
+    '/:id',
+    ensureAuthenticated,
+    async (request, response) => {
+        const usuariosRepositorio = getRepository(Usuarios);
+        const { id } = request.params;
+        await usuariosRepositorio.delete(id);
+        return response.send();
+    },
+);
+
+usuariosRouter.patch(
+    '/avatar',
+    ensureAuthenticated,
+    upload.single('avatar'),
+    async (request, response) => {
+        try {
+            const avatarUsuariosController = new AvatarUsuariosController();
+            await avatarUsuariosController.update({
+                user_id: request.user.id,
+                avatarFileName: request.file.filename,
+            });
+            console.log(request.file);
+            return response.json({ ok: true });
+        } catch (err) {
+            return response.status(400).json({ error: err.message });
+        }
+    },
+);
 
 export default usuariosRouter;
